@@ -54,14 +54,38 @@ login = data1$login
 login
 UserLogin = c(login)
 
-
+login_names = UserLogin
+login_names
 for (i in 1:length(UserLogin))
 {
   u = UserLogin[i]
+  u
   url_name <-paste("https://api.github.com/users/", u, "/followers", sep = "")
   followers = fromJSON(url_name)
-  #followers = fromJSON("https://api.github.com/users/")
-  print(u)
-  print(followers$login)
+  follower_logins = c(followers$login)
+  #follower_logins
+  #length(follower_logins)
+  #(follower_logins[j] %in% login_names)
+  for(j in 1:length(follower_logins)){
+    if((follower_logins[j] %in% login_names) == FALSE){
+      append(login_names, follower_logins[j], (length(login_names)))
+      next
+    }
+  }
   next
 }
+
+login_names
+u2 = eljoyce
+url_name2 <-paste("https://api.github.com/users/", u2, "/followers", sep = "")
+followers2 = fromJSON(url_name)
+
+?fromJSON
+#Current problem - followers can only store 30 followers
+install.packages("ff")
+library(ff)
+
+install.packages("RJSONIO")
+
+install.packages("RNeo4j")
+graph = startGraph("http://localhost:7474/db/data/")
