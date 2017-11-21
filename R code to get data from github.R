@@ -41,3 +41,27 @@ stop_for_status(req)
 
 # Extract content from a request
 json2 = content(req)
+
+req3 <- GET("https://api.github.com/users", gtoken)
+# Take action on http error
+stop_for_status(req)
+
+# Extract content from a request
+json2 = content(req)
+
+data1 <- fromJSON("https://api.github.com/users/eljoyce/followers")
+login = data1$login
+login
+UserLogin = c(login)
+
+
+for (i in 1:length(UserLogin))
+{
+  u = UserLogin[i]
+  url_name <-paste("https://api.github.com/users/", u, "/followers", sep = "")
+  followers = fromJSON(url_name)
+  #followers = fromJSON("https://api.github.com/users/")
+  print(u)
+  print(followers$login)
+  next
+}
