@@ -47,33 +47,14 @@ login_names = "eljoyce"
 #login_names = append(login_names, "Sarah", (length(login_names) + 1))
 limit = 0
 
-while(limit < 5){
-  followerFunction(login)
-}
+
 # vector that will hold usernames that have been accessed.
-x2 = "ellen"
-y = c("Ellen", "Sarah", "Maeve", "Sarah")
-#for(i in 1:length(y)){
- # u2 = y[i]
-  #if( (u2 %in% x) == FALSE){
-   # x = append(x, u2, (length(x) + 1))
-  #}
-#}
-funct <-function(y1){
-  for(i in 1:length(y1)){
-    print(x2)
-    u2 = y1[i]
-    if( (u2 %in% x2) == FALSE){
-      x2 <<- append(x2, u2, (length(x2) + 1))
-    }
-  }
-}
-funct(y)
+
 followerFunction <- function(username)
   #function(vector of inputted username followers)
 {
-  #for ( i in 1:length(username))
-  for ( i in 1:2)
+  for ( i in 1:length(username))
+  #for ( i in 1:2)
   {
     u = username[i]
     #Follower of username
@@ -87,8 +68,10 @@ followerFunction <- function(username)
       followerFunction(f)
     }
     limit = limit + 1
-    print(limit)
-    print("This is the limit")
     next
   }
+}
+
+while(limit < 5){
+  followerFunction(login)
 }
