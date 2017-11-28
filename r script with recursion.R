@@ -41,18 +41,39 @@ gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
 
 data = fromJSON("https://api.github.com/users/eljoyce/followers")
 login = data$login
-
+login_names = c()
 login_names = "eljoyce"
+#login_names = append(login_names, "Sarah", (length(login_names) + 1))
+#login_names = append(login_names, "Sarah", (length(login_names) + 1))
 limit = 0
-while(limit < 30){
+
+while(limit < 5){
   followerFunction(login)
 }
 # vector that will hold usernames that have been accessed.
-
+x2 = "ellen"
+y = c("Ellen", "Sarah", "Maeve", "Sarah")
+#for(i in 1:length(y)){
+ # u2 = y[i]
+  #if( (u2 %in% x) == FALSE){
+   # x = append(x, u2, (length(x) + 1))
+  #}
+#}
+funct <-function(y1){
+  for(i in 1:length(y1)){
+    print(x2)
+    u2 = y1[i]
+    if( (u2 %in% x2) == FALSE){
+      x2 <<- append(x2, u2, (length(x2) + 1))
+    }
+  }
+}
+funct(y)
 followerFunction <- function(username)
   #function(vector of inputted username followers)
 {
-  for ( i in 1:length(username))
+  #for ( i in 1:length(username))
+  for ( i in 1:2)
   {
     u = username[i]
     #Follower of username
@@ -61,11 +82,13 @@ followerFunction <- function(username)
       url =paste("https://api.github.com/users/", u, "/followers", sep="")
       followers = fromJSON(url)
       f = followers$login
-      append(login_names, u, (length(login_names)))
+      login_names <<- append(login_names, u, (length(login_names) + 1))
       print(login_names)
       followerFunction(f)
-      limit = limit + 1
     }
+    limit = limit + 1
+    print(limit)
+    print("This is the limit")
     next
   }
 }
