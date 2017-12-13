@@ -92,14 +92,18 @@ for(j in 1:5){
     commitersDF = jsonlite::fromJSON(jsonlite::toJSON(commitersContent))
     numberCommits[i] = length(commitersDF$login)
     
-    urlDate = paste("https://api.github.com/repos/Chalarangelo/", reposName[i],"", sep = "")
+    urlDate = paste("https://api.github.com/repos/", login_names[j],"/", reposName[i],"", sep = "")
     dateAccess = GET(urlDate, gtoken)
     dateContent = content(dateAccess)
     dateDF = jsonlite::fromJSON(jsonlite::toJSON(dateContent))
     str = substr(dateDF$created_at,1,10)
-    dates[i] = as.Date(str)
+    dates[i] = weekdays(as.Date(str))
   }
-  plot(dates, numberCommits)
+  x <- factor(dates, levels = c("Dé Luain", "Dé Máirt", "Dé Céadaoin", 
+                            "Déardaoin", "Dé hAoine", "Dé Sathairn", "Dé Domhnaigh"),
+              ordered = TRUE)
+  plot(as.integer(x), numberCommits, xaxt="n", xlab = "Day of Week", ylab = "Number of Commits")
+  axis(side = 1, at = x, labels = x)
 }
 ?plot
 
