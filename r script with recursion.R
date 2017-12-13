@@ -21,25 +21,24 @@ github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)
 # Use API
 gtoken <- config(token = github_token)
 req <- GET("https://api.github.com/users/eljoyce", gtoken)
-#req2 <- GET("https://api.github.com/users/torvalds/followers", gtoken)
 # Take action on http error
 stop_for_status(req)
 #stop_for_status(req2)
 
 # Extract content from a request
 json1 = content(req)
-#json2 = content(req2)
 
 # Convert to a data.frame
 gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
-#gitDF2 = jsonlite::fromJSON(jsonlite::toJSON(json2))
+
 
 # Subset data.frame
-#gitDF[gitDF$full_name == "sorchaobyrne/datasharing", "created_at"] 
 
+firstData = GET("https://api.github.com/users/eljoyce/followers", gtoken)
+stop_for_status(firstData)
+dataF = content(firstData)
+data = jsonlite::fromJSON(jsonlite::toJSON(dataF))
 
-
-data = fromJSON("https://api.github.com/users/eljoyce/followers")
 login = data$login
 login_names = c()
 login_names = "eljoyce"
@@ -61,17 +60,22 @@ followerFunction <- function(username)
     if( (u %in% login_names) == FALSE){
       #If statement checks if username is in login names
       url =paste("https://api.github.com/users/", u, "/followers", sep="")
-      followers = fromJSON(url)
-      f = followers$login
+      followersAccess = GET(url, gtoken)
+      followersContent = content(followersAccess)
+      if(length(followersContent) == 0){
+        next
+      }
+      followersDF = jsonlite::fromJSON(jsonlite::toJSON(followersContent))
+      fLogin = followersDF$login
       login_names <<- append(login_names, u, (length(login_names) + 1))
       print(login_names)
-      followerFunction(f)
+      followerFunction(fLogin)
     }
     limit = limit + 1
     next
   }
 }
 
-while(limit < 5){
+while(limit < 10){
   followerFunction(login)
 }
