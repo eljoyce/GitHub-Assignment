@@ -48,7 +48,6 @@ followerFunction <- function(username)
   #function(vector of inputted username followers)
 {
   for ( i in 1:length(username))
-    #for ( i in 1:2)
   {
     if(length(login_names) < 100){
       u = username[i]
@@ -76,36 +75,58 @@ while(length(login_names) < 100){
   followerFunction(login)
 }
 
-for(j in 1:5){
+finalDF = data.frame(matrix(vector(), 0, 3,
+                            dimnames=list(c(), c("User", "Average Number of Commiters",
+                                                 "Followers of User", "Number of Repos a User Has"))),stringsAsFactors=F)
+for(j in 1:length(login_names)){
+  
+  #Get a list of the repositoty names for the user
   urlRepos =paste("https://api.github.com/users/",login_names[j],"/repos", sep="")
   repoAccess = GET(urlRepos, gtoken)
   repoContent = content(repoAccess)
   reposDF = jsonlite::fromJSON(jsonlite::toJSON(repoContent))
   reposName = reposDF$name
-
-  dates = c()
-  numberCommits = c()
+  #Number of stars on each repo
+  reposDF$stargazers_count
+  #get the number of repos each user has
+  if(is.null(nrow(reposName))){
+    numberRepos = 0
+  }
+  else{
+    numberRepos= nrow(reposName)
+  }
+  
+  #For loop to collect the number of contributers to each repo that the user owns
+  numberCommiters = c()
   for(i in 1:length(reposName)){
     urlCommiters = paste("https://api.github.com/repos/", login_names[j],"/",reposName[i],"/contributors", sep = "")
     commitersAccess = GET(urlCommiters, gtoken)
     commitersContent = content(commitersAccess)
     commitersDF = jsonlite::fromJSON(jsonlite::toJSON(commitersContent))
-    numberCommits[i] = length(commitersDF$login)
-    
-    urlDate = paste("https://api.github.com/repos/", login_names[j],"/", reposName[i],"", sep = "")
-    dateAccess = GET(urlDate, gtoken)
-    dateContent = content(dateAccess)
-    dateDF = jsonlite::fromJSON(jsonlite::toJSON(dateContent))
-    str = substr(dateDF$created_at,1,10)
-    dates[i] = weekdays(as.Date(str))
+    if(is.null(nrow(commitersDF["login"]))){
+      numberCommiters[i] = 0
+    }
+    else{
+      numberCommiters[i] = nrow(commitersDF["login"])
+    }
   }
-  x <- factor(dates, levels = c("Dé Luain", "Dé Máirt", "Dé Céadaoin", 
-                            "Déardaoin", "Dé hAoine", "Dé Sathairn", "Dé Domhnaigh"),
-              ordered = TRUE)
-  plot(as.integer(x), numberCommits, xaxt="n", xlab = "Day of Week", ylab = "Number of Commits")
-  axis(side = 1, at = x, labels = x)
+  #Average number of commiters for this user's repos
+  avgCommiters = mean(numberCommiters)
+  
+  #Get the number of followers of user
+  urlFollowers =paste("https://api.github.com/users/", login_names[j], "/followers", sep="")
+  followersAccess = GET(urlFollowers, gtoken)
+  followersContent = content(followersAccess)
+  followersDF = jsonlite::fromJSON(jsonlite::toJSON(followersContent))
+  noFollowers = length(followersDF$login)
+  
+  finalDF[j,] = c(login_names[j], avgCommiters, noFollowers, numberRepos)
 }
-?plot
+plot(finalDF[,2], finalDF[,3],main = "Plot", xlab = "Average number of Commiters to the Repos", ylab = "Number of Followers")
+cor(finalDF[,2], finalDF[,3])
+
+install.packages("plotly")
+library(plotly)
 
 #Quick display of two cabapilities of GGally, to assess the distribution and correlation of variables
 library(GGally)
