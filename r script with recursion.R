@@ -75,11 +75,12 @@ while(length(login_names) < 100){
   followerFunction(login)
 }
 
-finalDF = data.frame(matrix(vector(), 0, 3,
-                            dimnames=list(c(), c("User", "Average Number of Commiters",
-                                                 "Followers of User", "Number of Repos a User Has"))),stringsAsFactors=F)
+finalDF = data.frame(matrix(vector(), 0, 5,
+                      dimnames=list(c(), c("User", "Average Number of Commiters",
+                              "Followers of User", "Number of Repos a User Has",
+                              "Number of Stars User Has"))),stringsAsFactors=F)
 for(j in 1:length(login_names)){
-  
+  stars = 0
   #Get a list of the repositoty names for the user
   urlRepos =paste("https://api.github.com/users/",login_names[j],"/repos", sep="")
   repoAccess = GET(urlRepos, gtoken)
@@ -87,14 +88,10 @@ for(j in 1:length(login_names)){
   reposDF = jsonlite::fromJSON(jsonlite::toJSON(repoContent))
   reposName = reposDF$name
   #Number of stars on each repo
-  reposDF$stargazers_count
+  stars = Reduce("+", reposDF$stargazers_count)
+  
   #get the number of repos each user has
-  if(is.null(nrow(reposName))){
-    numberRepos = 0
-  }
-  else{
-    numberRepos= nrow(reposName)
-  }
+    numberRepos = length(reposName)
   
   #For loop to collect the number of contributers to each repo that the user owns
   numberCommiters = c()
@@ -120,7 +117,7 @@ for(j in 1:length(login_names)){
   followersDF = jsonlite::fromJSON(jsonlite::toJSON(followersContent))
   noFollowers = length(followersDF$login)
   
-  finalDF[j,] = c(login_names[j], avgCommiters, noFollowers, numberRepos)
+  finalDF[j,] = c(login_names[j], avgCommiters, noFollowers, numberRepos, stars)
 }
 plot(finalDF[,2], finalDF[,3],main = "Plot", xlab = "Average number of Commiters to the Repos", ylab = "Number of Followers")
 cor(finalDF[,2], finalDF[,3])
