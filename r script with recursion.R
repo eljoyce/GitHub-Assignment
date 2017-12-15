@@ -31,6 +31,7 @@ json1 = content(req)
 # Convert to a data.frame
 gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
 
+install.packages("plotly")
 
 # Subset data.frame
 
@@ -87,11 +88,13 @@ for(j in 1:length(login_names)){
   repoContent = content(repoAccess)
   reposDF = jsonlite::fromJSON(jsonlite::toJSON(repoContent))
   reposName = reposDF$name
-  #Number of stars on each repo
-  stars = Reduce("+", reposDF$stargazers_count)
-  
   #get the number of repos each user has
-    numberRepos = length(reposName)
+  numberRepos = length(reposName)
+  
+  #Number of stars on each repo
+  if(numberRepos != 0){
+  stars = Reduce("+", reposDF$stargazers_count)
+  }
   
   #For loop to collect the number of contributers to each repo that the user owns
   numberCommiters = c()
@@ -120,27 +123,35 @@ for(j in 1:length(login_names)){
   finalDF[j,] = c(login_names[j], avgCommiters, noFollowers, numberRepos, stars)
 }
 plot(finalDF[,2], finalDF[,3],main = "Plot", xlab = "Average number of Commiters to the Repos", ylab = "Number of Followers")
-cor(finalDF[,2], finalDF[,3])
 
-install.packages("plotly")
-library(plotly)
+#Sets row names equal to the user names
+rownames(finalDF) = finalDF[,1]
+finalDF[,1] = NULL
+
+# Write CSV in R into current folder
+write.csv(finalDF, file = "FinalDataSet.csv")
+
 
 #Quick display of two cabapilities of GGally, to assess the distribution and correlation of variables
+install.packages(GGally)
 library(GGally)
 
-# Create data
-sample_data <- data.frame( v1 = 1:100 + rnorm(100,sd=20), v2 = 1:100 + rnorm(100,sd=27), v3 = rep(1, 100) + rnorm(100, sd = 1))
-sample_data$v4 = sample_data$v1 ** 2
-sample_data$v5 = -(sample_data$v1 ** 2)
-
-# Check correlation between variables
-cor(sample_data)
-
+cor(finalDF)
 # Check correlations (as scatterplots), distribution and print corrleation coefficient
-ggpairs(sample_data)
-
+ggpairs(finalDF)
 # Nice visualization of correlations
-ggcorr(sample_data, method = c("everything", "pearson"))
+ggcorr(finalDF, method = c("everything", "pearson"))
 
-#commits people make to repos that arent their own
-#Is there a correlation between how long they have been a user & the number of commits a day?
+#Install necessary plotting packages
+require(devtools)
+library(plotly)
+
+#Produce a scatter plot of Followers vs Following
+Plot1 = plot_ly(data = finalDF, x = ~finalDF[,1], y = ~, text = ~paste("Following: ", Following, 
+                                                                                  "<br>Followers: ", Followers))
+MyPlot
+
+#Upload the plot to Plotly
+Sys.setenv("plotly_username" = "eljoyce")
+Sys.setenv("plotly_api_key" = "TPPzofmBxgXp5KWhrHTi")
+api_create(MyPlot, filename = "Average Number of Commiters to User's Repos vs Followers of User")
